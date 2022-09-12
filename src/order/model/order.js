@@ -14,23 +14,23 @@ module.exports = function (sequelize, DataTypes) {
       pay_state: {
         type: DataTypes.STRING,
       },
+      product_id: {
+        type: DataTypes.INTEGER,
+      },
       quantity: {
         type: DataTypes.INTEGER,
       },
-      price: {
+      total_price: {
         type: DataTypes.DECIMAL(7, 2),
+      },
+      country_idx: {
+        type: DataTypes.INTEGER,
       },
       buyr_city: {
         type: DataTypes.STRING,
       },
-      buyr_country: {
-        type: DataTypes.STRING,
-      },
       buyr_zipx: {
         type: DataTypes.STRING,
-      },
-      vccode: {
-        type: DataTypes.INTEGER,
       },
     },
     {

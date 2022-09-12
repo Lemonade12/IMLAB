@@ -4,6 +4,7 @@ var deliveryCostModel = require("../src/order/model/delivery_cost");
 var orderModel = require("../src/order/model/order");
 var couponModel = require("../src/coupon/model/coupon");
 var couponUsageModel = require("../src/coupon/model/coupon_usage");
+var productModel = require("../src/order/model/product");
 
 function initModels(sequelize) {
   var country_code = countryCodeModel(sequelize, DataTypes);
@@ -11,6 +12,7 @@ function initModels(sequelize) {
   var order = orderModel(sequelize, DataTypes);
   var coupon = couponModel(sequelize, DataTypes);
   var coupon_usage = couponUsageModel(sequelize, DataTypes);
+  var product = productModel(sequelize, DataTypes);
 
   return {
     country_code,
@@ -18,6 +20,7 @@ function initModels(sequelize) {
     order,
     coupon,
     coupon_usage,
+    product,
   };
 }
 module.exports = initModels;
