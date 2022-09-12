@@ -1,14 +1,20 @@
 const orderRepo = require("./orderRepository");
 const couponRepo = require("../coupon/couponRepository");
+const axios = require("axios");
 
 async function createOrder(orderInfo) {
   const productId = orderInfo.product_id;
   const countryId = orderInfo.country_idx;
-
   const productInfo = await orderRepo.readProductById(productId);
   const countryInfo = await orderRepo.readCountryById(countryId);
   let totalPrice;
   let discountedAmount;
+  let exchangeInfo;
+
+  const url_for_exchange = "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD";
+  await axios.get(url_for_exchange).then(function (response) {
+    exchangeInfo = response.data[0].basePrice;
+  });
 
   if (countryInfo.country_name == "South Korea") {
     //배송비없음 => 조건을 바꿔야할듯
@@ -45,8 +51,6 @@ async function createOrder(orderInfo) {
           (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100 +
           deliveryCost[0];
         discountedAmount = (productInfo.price * orderInfo.quantity * couponInfo.discount) / 100;
-
-        console.log(discountedAmount);
       } else if (couponInfo.type == "fixed") {
         totalPrice = productInfo.price * orderInfo.quantity - couponInfo.discount + deliveryCost[0];
         discountedAmount = couponInfo.discount;
@@ -55,7 +59,7 @@ async function createOrder(orderInfo) {
         discountedAmount = couponInfo.discount;
       }
     }
-    totalPrice = totalPrice / 1200;
+    totalPrice = totalPrice / exchangeInfo;
   }
   // 쿠폰적용해야함, kr이면 그대로, 그외의 나라에는 환율적용 1200 = 1달라, 추후 환율 api 적용
 
