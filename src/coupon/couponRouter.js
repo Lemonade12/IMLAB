@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/coupon", couponController.createCoupon);
 router.get("/coupon/usage/:id", couponController.readCouponUsageById);
-//router.patch("/order/:id", orderController.updateOrderStatus);
+router.get("/coupon/stats", couponController.readCouponStatistic);
 
 module.exports = router;

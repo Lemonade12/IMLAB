@@ -16,4 +16,9 @@ async function readCouponUsageById(couponId) {
   return data;
 }
 
-module.exports = { createCoupon, readCouponUsageById };
+async function readCouponStatistic() {
+  const data = await couponRepo.readCouponStatistic();
+  return data;
+}
+
+module.exports = { createCoupon, readCouponUsageById, readCouponStatistic };

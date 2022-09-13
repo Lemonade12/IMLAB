@@ -23,4 +23,14 @@ async function readCouponUsageById(req, res) {
   }
 }
 
-module.exports = { createCoupon, readCouponUsageById };
+async function readCouponStatistic(req, res) {
+  try {
+    const data = await couponService.readCouponStatistic();
+    return res.status(StatusCodes.OK).send({ data });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 500).json({ message: err.message });
+  }
+}
+
+module.exports = { createCoupon, readCouponUsageById, readCouponStatistic };

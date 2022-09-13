@@ -41,10 +41,29 @@ async function readCouponUsageById(couponId) {
   return data;
 }
 
+async function readCouponStatistic() {
+  const data = await coupon_usage.findAll({
+    attributes: [
+      [sequelize.col("coupon.type"), "쿠폰타입"],
+      [sequelize.fn("count", "*"), "사용횟수"],
+      [sequelize.fn("sum", sequelize.col("discounted_amount")), "총할인액"],
+    ],
+    include: [
+      {
+        model: coupon,
+        attributes: [],
+      },
+    ],
+    group: "coupon.type",
+  });
+  return data;
+}
+
 module.exports = {
   readCouponByCode,
   readCouponById,
   createCouponUsage,
   createCoupon,
   readCouponUsageById,
+  readCouponStatistic,
 };
