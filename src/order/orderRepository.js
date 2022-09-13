@@ -21,8 +21,9 @@ async function readCountryById(countryId) {
 }
 
 async function readDeliveryCost(quantity, countryName) {
+  const snakeCountryName = countryName.replaceAll(" ", "_");
   const data = await delivery_cost.findOne({
-    attributes: [countryName],
+    attributes: [snakeCountryName],
     where: { quantity: quantity },
     raw: true,
   });

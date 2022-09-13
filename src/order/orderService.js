@@ -6,7 +6,17 @@ async function createOrder(orderInfo) {
   const productId = orderInfo.product_id;
   const countryId = orderInfo.country_idx;
   const productInfo = await orderRepo.readProductById(productId);
+  if (!productInfo) {
+    const error = new Error("존재하지 않는 상품입니다.");
+    error.statusCode = 404;
+    throw error;
+  }
   const countryInfo = await orderRepo.readCountryById(countryId);
+  if (!countryInfo) {
+    const error = new Error("존재하지 않는 나라입니다.");
+    error.statusCode = 404;
+    throw error;
+  }
   let totalPrice;
   let discountedAmount;
   let exchangeInfo;
@@ -17,7 +27,7 @@ async function createOrder(orderInfo) {
     exchangeInfo = response.data[0].basePrice;
   });
 
-  if (countryInfo.country_name == "South Korea") {
+  /*if (countryInfo.country_name == "South Korea") {
     //배송비없음 => 조건을 바꿔야할듯
     if (orderInfo.coupon_code == undefined) {
       //쿠폰미사용
@@ -26,6 +36,11 @@ async function createOrder(orderInfo) {
       //쿠폰사용
       const couponCode = orderInfo.coupon_code;
       const couponInfo = await couponRepo.readCouponByCode(couponCode);
+      if (!couponInfo) {
+        const error = new Error("존재하지 않는 쿠폰입니다.");
+        error.statusCode = 404;
+        throw error;
+      }
       if (couponInfo.type == "percent") {
         totalPrice = (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100;
         discountedAmount = (productInfo.price * orderInfo.quantity * couponInfo.discount) / 100;
@@ -34,34 +49,37 @@ async function createOrder(orderInfo) {
         discountedAmount = couponInfo.discount;
       }
     }
+  }*/
+  const deliveryCost = await orderRepo.readDeliveryCost(
+    orderInfo.quantity,
+    countryInfo.country_name
+  );
+  if (orderInfo.coupon_code == undefined) {
+    //쿠폰미사용
+    totalPrice = productInfo.price * orderInfo.quantity + deliveryCost[0];
   } else {
-    //배송비있음
-    const deliveryCost = await orderRepo.readDeliveryCost(
-      orderInfo.quantity,
-      countryInfo.country_name
-    );
-    if (orderInfo.coupon_code == undefined) {
-      //쿠폰미사용
-      totalPrice = productInfo.price * orderInfo.quantity;
-    } else {
-      //쿠폰사용
-      const couponCode = orderInfo.coupon_code;
-      const couponInfo = await couponRepo.readCouponByCode(couponCode);
-      if (couponInfo.type == "percent") {
-        totalPrice =
-          (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100 +
-          deliveryCost[0];
-        discountedAmount = (productInfo.price * orderInfo.quantity * couponInfo.discount) / 100;
-      } else if (couponInfo.type == "fixed") {
-        totalPrice = productInfo.price * orderInfo.quantity - couponInfo.discount + deliveryCost[0];
-        discountedAmount = couponInfo.discount;
-      } else if (couponInfo.type == "delivery") {
-        totalPrice = productInfo.price * orderInfo.quantity + deliveryCost[0] - couponInfo.discount;
-        discountedAmount = couponInfo.discount;
-      }
+    //쿠폰사용
+    const couponCode = orderInfo.coupon_code;
+    const couponInfo = await couponRepo.readCouponByCode(couponCode);
+    if (!couponInfo) {
+      const error = new Error("존재하지 않는 쿠폰입니다.");
+      error.statusCode = 404;
+      throw error;
     }
-    totalPrice = totalPrice / exchangeInfo;
+    if (couponInfo.type == "percent") {
+      totalPrice =
+        (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100 +
+        deliveryCost[0];
+      discountedAmount = (productInfo.price * orderInfo.quantity * couponInfo.discount) / 100;
+    } else if (couponInfo.type == "fixed") {
+      totalPrice = productInfo.price * orderInfo.quantity - couponInfo.discount + deliveryCost[0];
+      discountedAmount = couponInfo.discount;
+    } else if (couponInfo.type == "delivery") {
+      totalPrice = productInfo.price * orderInfo.quantity + deliveryCost[0] - couponInfo.discount;
+      discountedAmount = couponInfo.discount;
+    }
   }
+  totalPrice = totalPrice / exchangeInfo;
 
   const orderInfoDTO = {
     user_name: orderInfo.user_name,
