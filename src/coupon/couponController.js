@@ -12,4 +12,15 @@ async function createCoupon(req, res) {
   }
 }
 
-module.exports = { createCoupon };
+async function readCouponUsageById(req, res) {
+  try {
+    const couponId = req.params.id;
+    const data = await couponService.readCouponUsageById(couponId);
+    return res.status(StatusCodes.OK).send({ data });
+  } catch (err) {
+    console.log(err);
+    return res.status(err.statusCode || 500).json({ message: err.message });
+  }
+}
+
+module.exports = { createCoupon, readCouponUsageById };

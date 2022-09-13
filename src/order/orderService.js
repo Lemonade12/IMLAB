@@ -19,13 +19,13 @@ async function createOrder(orderInfo) {
 
   if (countryInfo.country_name == "South Korea") {
     //배송비없음 => 조건을 바꿔야할듯
-    if (orderInfo.coupon_id == undefined) {
+    if (orderInfo.coupon_code == undefined) {
       //쿠폰미사용
       totalPrice = productInfo.price * orderInfo.quantity;
     } else {
       //쿠폰사용
-      const couponId = orderInfo.coupon_id;
-      const couponInfo = await couponRepo.readCouponById(couponId);
+      const couponCode = orderInfo.coupon_code;
+      const couponInfo = await couponRepo.readCouponByCode(couponCode);
       if (couponInfo.type == "percent") {
         totalPrice = (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100;
         discountedAmount = (productInfo.price * orderInfo.quantity * couponInfo.discount) / 100;
@@ -40,13 +40,13 @@ async function createOrder(orderInfo) {
       orderInfo.quantity,
       countryInfo.country_name
     );
-    if (orderInfo.coupon_id == undefined) {
+    if (orderInfo.coupon_code == undefined) {
       //쿠폰미사용
       totalPrice = productInfo.price * orderInfo.quantity;
     } else {
       //쿠폰사용
-      const couponId = orderInfo.coupon_id;
-      const couponInfo = await couponRepo.readCouponById(couponId);
+      const couponCode = orderInfo.coupon_code;
+      const couponInfo = await couponRepo.readCouponByCode(couponCode);
       if (couponInfo.type == "percent") {
         totalPrice =
           (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100 +
@@ -76,10 +76,12 @@ async function createOrder(orderInfo) {
 
   const data = await orderRepo.createOrder(orderInfoDTO);
 
-  if (orderInfo.coupon_id !== undefined) {
+  if (orderInfo.coupon_code !== undefined) {
     //쿠폰사용인경우 coupon_usage 테이블에 create
+    const couponCode = orderInfo.coupon_code;
+    const couponInfo = await couponRepo.readCouponByCode(couponCode);
     const couponUsageInfoDTO = {
-      coupon_id: orderInfo.coupon_id,
+      coupon_id: couponInfo.id,
       order_id: data.id,
       discounted_amount: discountedAmount,
     };
