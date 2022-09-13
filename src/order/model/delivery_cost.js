@@ -5,7 +5,6 @@ module.exports = function (sequelize, DataTypes) {
     {
       id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
         primaryKey: true,
       },
       quantity: {
@@ -421,6 +420,10 @@ module.exports = function (sequelize, DataTypes) {
         allowNull: true,
       },
       Zambia: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      South_Korea: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
