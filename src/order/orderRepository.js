@@ -35,6 +35,13 @@ async function createOrder(orderInfo) {
   return order.create(orderInfo);
 }
 
+async function readOrderById(orderId) {
+  const data = await order.findOne({
+    where: { id: orderId },
+  });
+  return data;
+}
+
 async function readOrderByFilter(filter) {
   if (filter.search == undefined) {
     const data = await order.findAll({
@@ -133,6 +140,7 @@ module.exports = {
   readCountryById,
   readDeliveryCost,
   createOrder,
+  readOrderById,
   readOrderByFilter,
   updateOrderStatus,
 };

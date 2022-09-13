@@ -26,30 +26,6 @@ async function createOrder(orderInfo) {
     //환율api적용
     exchangeInfo = response.data[0].basePrice;
   });
-
-  /*if (countryInfo.country_name == "South Korea") {
-    //배송비없음 => 조건을 바꿔야할듯
-    if (orderInfo.coupon_code == undefined) {
-      //쿠폰미사용
-      totalPrice = productInfo.price * orderInfo.quantity;
-    } else {
-      //쿠폰사용
-      const couponCode = orderInfo.coupon_code;
-      const couponInfo = await couponRepo.readCouponByCode(couponCode);
-      if (!couponInfo) {
-        const error = new Error("존재하지 않는 쿠폰입니다.");
-        error.statusCode = 404;
-        throw error;
-      }
-      if (couponInfo.type == "percent") {
-        totalPrice = (productInfo.price * orderInfo.quantity * (100 - couponInfo.discount)) / 100;
-        discountedAmount = (productInfo.price * orderInfo.quantity * couponInfo.discount) / 100;
-      } else if (couponInfo.type == "fixed") {
-        totalPrice = productInfo.price * orderInfo.quantity - couponInfo.discount;
-        discountedAmount = couponInfo.discount;
-      }
-    }
-  }*/
   const deliveryCost = await orderRepo.readDeliveryCost(
     orderInfo.quantity,
     countryInfo.country_name
@@ -131,6 +107,12 @@ async function readOrder(filter) {
 }
 
 async function updateOrderStatus(orderId, payState) {
+  const orderInfo = await orderRepo.readOrderById(orderId);
+  if (!orderInfo) {
+    const error = new Error("존재하지 않는 주문입니다.");
+    error.statusCode = 404;
+    throw error;
+  }
   const data = await orderRepo.updateOrderStatus(orderId, payState);
   return data;
 }
