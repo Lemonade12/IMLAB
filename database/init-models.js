@@ -14,6 +14,15 @@ function initModels(sequelize) {
   var coupon_usage = couponUsageModel(sequelize, DataTypes);
   var product = productModel(sequelize, DataTypes);
 
+  order.belongsTo(product, { foreignKey: "product_id" });
+  product.hasMany(order, { foreignKey: "product_id" });
+  order.belongsTo(country_code, { foreignKey: "country_idx" });
+  country_code.hasMany(order, { foreignKey: "country_idx" });
+  coupon_usage.belongsTo(coupon, { foreignKey: "coupon_id" });
+  coupon.hasMany(coupon_usage, { foreignKey: "coupon_id" });
+  coupon_usage.belongsTo(order, { foreignKey: "order_id" });
+  order.hasOne(coupon_usage, { foreignKey: "order_id" });
+
   return {
     country_code,
     delivery_cost,

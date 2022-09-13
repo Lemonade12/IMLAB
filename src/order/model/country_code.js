@@ -5,7 +5,7 @@ module.exports = function (sequelize, DataTypes) {
     {
       country_idx: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        primaryKey: true,
       },
       country_code: {
         type: DataTypes.STRING(50),

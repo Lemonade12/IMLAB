@@ -13,6 +13,7 @@ async function createOrder(orderInfo) {
 
   const url_for_exchange = "https://quotation-api-cdn.dunamu.com/v1/forex/recent?codes=FRX.KRWUSD";
   await axios.get(url_for_exchange).then(function (response) {
+    //환율api적용
     exchangeInfo = response.data[0].basePrice;
   });
 
@@ -61,7 +62,6 @@ async function createOrder(orderInfo) {
     }
     totalPrice = totalPrice / exchangeInfo;
   }
-  // 쿠폰적용해야함, kr이면 그대로, 그외의 나라에는 환율적용 1200 = 1달라, 추후 환율 api 적용
 
   const orderInfoDTO = {
     user_name: orderInfo.user_name,
@@ -89,6 +89,34 @@ async function createOrder(orderInfo) {
   return data;
 }
 
+async function readOrder(filter) {
+  let statusArr = [];
+  if (filter.status == undefined) {
+    statusArr = ["주문완료", "배송중", "배송완료"];
+  } else {
+    statusArr.push(filter.status);
+  }
+  filter.status = statusArr;
+  if (filter.start == undefined || filter.end == undefined) {
+    // default 값 그 주 의 데이터만
+    const curr = new Date();
+    filter.start = new Date(curr.setHours(0, 0, 0, 0) - 24 * 3600 * 1000 * curr.getDay());
+    filter.end = new Date(curr.setHours(24, 0, 0, 0));
+  } else {
+    let temp = new Date(filter.end);
+    filter.end = new Date(temp.setHours(24, 0, 0, 0));
+  }
+  const data = await orderRepo.readOrderByFilter(filter);
+  return data;
+}
+
+async function updateOrderStatus(orderId, payState) {
+  const data = await orderRepo.updateOrderStatus(orderId, payState);
+  return data;
+}
+
 module.exports = {
   createOrder,
+  readOrder,
+  updateOrderStatus,
 };
