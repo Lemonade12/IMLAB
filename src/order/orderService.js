@@ -55,7 +55,10 @@ async function createOrder(orderInfo) {
       discountedAmount = couponInfo.discount;
     }
   }
-  totalPrice = totalPrice / exchangeInfo;
+  console.log(countryInfo);
+  if (countryInfo.country_code !== "KR") {
+    totalPrice = totalPrice / exchangeInfo;
+  }
 
   const orderInfoDTO = {
     user_name: orderInfo.user_name,
